@@ -10,6 +10,8 @@ const session = require('express-session')
 const passport = require('passport')
 const ObjectID = require('mongodb').ObjectID
 const mongo = require('mongodb').MongoClient
+// For Challenge #6
+const LocalStrategy = require('passport-local')
 
 const app = express();
 const pug = require('pug');
@@ -46,7 +48,7 @@ myDB(async client => {
       res.render('pug', {title: "Connected to Database", message: 'Please login'})
     });
 
-/*
+
   // Serialization and deserialization here...
   // Save User ID to a cookie
   passport.serializeUser((user, done) => {
@@ -55,13 +57,27 @@ myDB(async client => {
 
   // Retrieve User details from cookie
   passport.deserializeUser((id, done) => {
-    myDB.collection("users")
+    myDataBase.collection("users")
     .findOne({ _id: new ObjectID(id) }, (err, doc) => {
       done(null, doc);
     });
+
+    // CHALLENGE SOLUTION CODE
+  let findUserDocument = new LocalStrategy((username, password, done) => {
+      myDataBase.findOne({ username: username }, function (err, user) {
+      console.log('User '+ username +' attempted to log in.');
+      if (err) { return done(err); }
+      if (!user) { return done(null, false); }
+      if (password !== user.password) { return done(null, false); }
+      return done(null, user);
+    });
+  }
+);
+    passport.use(findUserDocument)
+  
   
   })
-  */
+  
 }).catch(e => {
   console.log("Unsuccessful Connection")
   app.route('/').get((req, res) => {
@@ -81,4 +97,36 @@ app.listen(PORT, () => {
     });
 
 
-  
+  // CHALLENGE #6 -- AUTHENTICATION STRATEGIES
+
+  // EXAMPLE CODE
+/*
+  let findUseDocument = new LocalStrategy((username, password, done) => {
+    db.collection('users').findOne(
+      {username: username},
+      {err, user} => {
+        if (err) { return done(err); }
+        else if (!user) { return done(null, false); }
+        else if (password !== user.password)   { return done(null, false); }
+        return done(null, user);
+      }
+    )
+  })
+  */
+/*
+  // CHALLENGE SOLUTION CODE
+let findUseDocument = new LocalStrategy((username, password, done) => {
+    db.collection('users').findOne(
+      {username: username},
+      {err, user} => {
+        console.log("User " + username + ' attempted to log in.');
+
+    if (err) { return done(err); }
+    if (!user) { return done(null, false); }
+    if (password !== user.password)   { return done(null, false); }
+    return done(null, user);
+      }
+    )
+  })
+  passport.use(findUserDocument)
+*/
