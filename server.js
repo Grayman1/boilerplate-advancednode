@@ -70,9 +70,22 @@ myDB(async client => {
   // CHALLENGES #7 CODE MDIFICATIONS -- HOW TO USE PASSPORT STRATEGES
   app.route('/login').post(passport.authenticate('local', {failureRedirect: '/' }),
       (req, res) => {
-        res.render("/profile")
+        res.redirect("/profile")
       }
     );
+/*
+  app
+    .route('/profile')
+    .get(ensureAuthenticated, (req,res) => {
+        res.render(process.cwd() + '/views/pug/profile');
+    }); 
+*/
+  function ensureAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+      return next();
+    }
+    res.redirect('/');
+    };
 
     // CHALLENGE SOLUTION CODE
 
@@ -88,25 +101,15 @@ myDB(async client => {
     }
   ));
 
-/*
-  let findUserDocument = new LocalStrategy((username, password, done) => {
-      myDataBase.collection('users').findOne({ username: username }, function (err, user) {
-      console.log('User '+ username +' attempted to log in.');
-      if (err) { return done(err); }
-      if (!user) { return done(null, false); }
-      if (password !== user.password) { return done(null, false); }
-      return done(null, user);
-    });
-  }
-);
-    passport.use(findUserDocument);
 
-*/    
-
-    app.get('/profile', (req, res) => {
+  app
+    .route('/profile')
+    .get(ensureAuthenticated, (req,res) => {
+      res.render(process.cwd() + '/views/pug/profile')    
+    .get('/profile', (req, res) => {
       res.render("/profile")
-    }
-    )
+    })
+    })
 
 }).catch(e => {
   console.log("Unsucessful DB connection");
@@ -114,7 +117,6 @@ myDB(async client => {
     res.render('pug', { title: e, message: 'Unable to login' });
   });
 });
-
 
 fccTesting(app); //For FCC testing purposes 
 app.use('/public', express.static(process.cwd() + '/public'));
@@ -142,7 +144,8 @@ app.listen(PORT, () => {
       }
     )
   })
-  */
+*/
+
 /*
   // CHALLENGE SOLUTION CODE
 let findUseDocument = new LocalStrategy((username, password, done) => {
