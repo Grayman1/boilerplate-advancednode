@@ -87,6 +87,32 @@ myDB(async client => {
     res.redirect('/');
     };
 
+    app
+    .route('/profile')
+    .get(ensureAuthenticated, (req,res) => {
+      res.render(process.cwd() + '/views/pug/profile', {username: req.user.username})  
+    })
+
+  app.get('/profile', (req, res) => {
+      res.render("/profile")
+    })
+/*
+Chalenge #10 Code Modfiications -- Logging a User Out
+*/
+
+  app.route('/logout')
+  .get((req, res) => {
+    req.logout();
+    res.redirect('/');
+  });
+
+  app.use((req, res, next) => {
+  res.status(404)
+    .type('text')
+    .send('Not Found');
+  });
+    
+
     // CHALLENGE SOLUTION CODE
 
   passport.use(new LocalStrategy(
@@ -106,16 +132,7 @@ myDB(async client => {
   - add h2 eleement : h2.center#welcome Welcome, #{username}!
   - add link referring to /logout : a(href='/logout') Logout
 */
-  app
-    .route('/profile')
-    .get(ensureAuthenticated, (req,res) => {
-      res.render(process.cwd() + '/views/pug/profile', {username: req.user.username})  
-    })
 
-  app.get('/profile', (req, res) => {
-      res.render("/profile")
-    })
-    
 
 }).catch(e => {
   console.log("Unsucessful DB connection");
