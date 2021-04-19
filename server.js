@@ -100,16 +100,22 @@ myDB(async client => {
       });
     }
   ));
-
+/* Challenge #9 Code Modifications-
+  - Add req.user.username to profile render view.
+  Add code to /views/pug/profile
+  - add h2 eleement : h2.center#welcome Welcome, #{username}!
+  - add link referring to /logout : a(href='/logout') Logout
 
   app
     .route('/profile')
     .get(ensureAuthenticated, (req,res) => {
-      res.render(process.cwd() + '/views/pug/profile')    
-    .get('/profile', (req, res) => {
+      res.render(process.cwd() + '/views/pug/profile', {username: req.user.username})  
+    })
+
+  app.get('/profile', (req, res) => {
       res.render("/profile")
     })
-    })
+    
 
 }).catch(e => {
   console.log("Unsucessful DB connection");
