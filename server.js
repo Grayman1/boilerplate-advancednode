@@ -12,6 +12,7 @@ const ObjectID = require('mongodb').ObjectID
 const mongo = require('mongodb').MongoClient
 // For Challenge #6
 const LocalStrategy = require('passport-local')
+const bodyParser = require('body-parser')
 
 const app = express();
 const pug = require('pug');
@@ -41,12 +42,16 @@ app.use(passport.session())
 
 myDB(async client => {
   const myDataBase = await client.db('database').collection('users');
-  console.log("Sucessful Connection")
+  console.log("Sucessful DB Connection")
   
   // Be sure to change the title
   app.route("/").get((req, res) => {
-      res.render('pug', {title: "Connected to Database", message: 'Please login'})
-    });
+      res.render('pug', {
+      title: "Connected to Database",
+      message: 'Please login',
+      showLogin: true});
+      
+  });
 
 
   // Serialization and deserialization here...
@@ -57,14 +62,35 @@ myDB(async client => {
 
   // Retrieve User details from cookie
   passport.deserializeUser((id, done) => {
-    myDataBase.collection("users")
-    .findOne({ _id: new ObjectID(id) }, (err, doc) => {
+   // myDataBase.collection("users")
+    myDataBase.findOne({ _id: new ObjectID(id) }, (err, doc) => {
       done(null, doc);
     });
+  })
+  // CHALLENGES #7 CODE MDIFICATIONS -- HOW TO USE PASSPORT STRATEGES
+  app.route('/login').post(passport.authenticate('local', {failureRedirect: '/' }),
+      (req, res) => {
+        res.render("/profile")
+      }
+    );
 
     // CHALLENGE SOLUTION CODE
+
+  passport.use(new LocalStrategy(
+    (username, password, done) => {
+      myDataBase.findOne({ username: username },   function (err, user) {
+        console.log('User '+ username +' attempted to log in.');
+        if (err) { return done(err); }
+        if (!user) { return done(null, false); }
+        if (password !== user.password) { return done(null, false); }
+        return done(null, user);
+      });
+    }
+  ));
+
+/*
   let findUserDocument = new LocalStrategy((username, password, done) => {
-      myDataBase.findOne({ username: username }, function (err, user) {
+      myDataBase.collection('users').findOne({ username: username }, function (err, user) {
       console.log('User '+ username +' attempted to log in.');
       if (err) { return done(err); }
       if (!user) { return done(null, false); }
@@ -73,13 +99,17 @@ myDB(async client => {
     });
   }
 );
-    passport.use(findUserDocument)
-  
-  
-  })
-  
+    passport.use(findUserDocument);
+
+*/    
+
+    app.get('/profile', (req, res) => {
+      res.render("/profile")
+    }
+    )
+
 }).catch(e => {
-  console.log("Unsuccessful Connection")
+  console.log("Unsucessful DB connection");
   app.route('/').get((req, res) => {
     res.render('pug', { title: e, message: 'Unable to login' });
   });
