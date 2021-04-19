@@ -105,7 +105,7 @@ myDB(async client => {
   Add code to /views/pug/profile
   - add h2 eleement : h2.center#welcome Welcome, #{username}!
   - add link referring to /logout : a(href='/logout') Logout
-
+*/
   app
     .route('/profile')
     .get(ensureAuthenticated, (req,res) => {
