@@ -13,6 +13,8 @@ const mongo = require('mongodb').MongoClient
 // For Challenge #6
 const LocalStrategy = require('passport-local')
 const bodyParser = require('body-parser')
+// Install bcrypt for password hashing
+const BCrypt = require('bcrypt')
 
 const app = express();
 const pug = require('pug');
@@ -35,8 +37,6 @@ app.use(passport.session())
 
 // Challenge #4 Serialization of a User Object
 //const ObjectID = require('mongodb').ObjectID;
-
-
 
 // Challenge #5  Implement the Serialization of a Passport User
 
@@ -90,8 +90,11 @@ myDB(async client => {
 
 
 // Challenge #11 - Registration of New Users
+// Registration route
   app.route('/register')
   .post((req, res, next) => {
+    // Challenge #12 - Hashing password
+    const hash = BCrypt.hashSync(req.body.password, 12);
     myDataBase.findOne({ username: req.body.username }, function(err, user) {
       if (err) {
         next(err);
@@ -100,7 +103,8 @@ myDB(async client => {
       } else {
         myDataBase.insertOne({
           username: req.body.username,
-          password: req.body.password
+          // Challenge #12 change req.body password to use 'hash'
+          password: hash
         },
           (err, doc) => {
             if (err) {
@@ -155,7 +159,9 @@ Chalenge #10 Code Modfiications -- Logging a User Out
         console.log('User '+ username +' attempted to log in.');
         if (err) { return done(err); }
         if (!user) { return done(null, false); }
-        if (password !== user.password) { return done(null, false); }
+        // Challenge #12 hash PW authentication
+//        if (password !== user.password)
+          if (!BCrypt.compareSync(password, user.password)) { return done(null, false); }
         return done(null, user);
       });
     }
