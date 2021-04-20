@@ -5,7 +5,9 @@ const ObjectID = require('mongodb').ObjectID
 const mongo = require('mongodb').MongoClient
 const LocalStrategy = require('passport-local')
 const bodyParser = require('body-parser')
-const BCrypt = require('bcrypt')
+const BCrypt = require('bcrypt');
+// Add for Challenge #15
+const GitHubStrategy = require('passport-github').Strategy;
 
 module.exports = function (app, myDataBase) {
   console.log('Authentication files loaded')
@@ -37,7 +39,17 @@ passport.use(new LocalStrategy(
     });
   }
 ));
-
+  // Add for Challenge #15
+  passport.use(new GitHubStrategy({
+  clientID: process.env.GITHUB_CLIENT_ID,
+  clientSecret: process.env.GITHUB_CLIENT_SECRET,
+  callbackURL: 'https://boilerplate-advancednode.grayman1.repl.co/auth/github/callback' /*INSERT CALLBACK URL ENTERED INTO GITHUB HERE*/
+},
+  function(accessToken, refreshToken, profile, cb) {
+    console.log(profile);
+    //Database logic here with callback containing our user object
+  }
+));
 
 
 
