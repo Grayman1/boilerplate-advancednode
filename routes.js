@@ -17,9 +17,25 @@ module.exports = function (app, myDataBase) {
       showLogin: true,
       showRegistration: true,
     // Add to implement social authorization
-      showSocialAuth: true});
-      
+      showSocialAuth: true});      
   });
+
+    // Add for challnge #14
+  app.route('/auth/github')
+    .get(passport.authenticate('github'));
+
+  app.route('/auth/github/callback')
+    .get(passport.authenticate('github', {failureRedirect:'/'}), (req, res) => {
+      req.session.user_id = req.user_id,
+      res.redirect('/chat');
+    })
+
+  // Challenge #17 Modifications
+  app.route("/chat")
+    .get(ensureAuthenticated, (req, res) => {
+      res.render(process.cwd() + '/views/pug/chat', {user: req.user})
+    })
+
 
   app.route('/login').post(passport.authenticate('local', {failureRedirect: '/' }),
       (req, res) => {
@@ -73,14 +89,7 @@ module.exports = function (app, myDataBase) {
       res.redirect('/profile');
     }
   );
-  // Add for challnge #14
-  app.route('/auth/github')
-    .get(passport.authenticate('github'));
 
-  app.route('/auth/github/callback')
-    .get(passport.authenticate('github', {failureRedirect:'/'}), (req, res) => {
-      res.redirect('/profile');
-    })
 
   app.route('/logout')
   .get((req, res) => {
