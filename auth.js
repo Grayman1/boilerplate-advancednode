@@ -1,5 +1,5 @@
 
-
+require('dotenv').config()
 const passport = require('passport')
 const ObjectID = require('mongodb').ObjectID
 const mongo = require('mongodb').MongoClient
@@ -43,13 +43,41 @@ passport.use(new LocalStrategy(
   passport.use(new GitHubStrategy({
   clientID: process.env.GITHUB_CLIENT_ID,
   clientSecret: process.env.GITHUB_CLIENT_SECRET,
-  callbackURL: 'https://boilerplate-advancednode.grayman1.repl.co/auth/github/callback' /*INSERT CALLBACK URL ENTERED INTO GITHUB HERE*/
+  callbackURL: 
+  'https://boilerplate-advancednode.grayman1.repl.co/auth/github/callback' /*INSERT CALLBACK URL ENTERED INTO GITHUB HERE*/
+  //process.cwd() + '/auth/github/callback'
 },
   function(accessToken, refreshToken, profile, cb) {
     console.log(profile);
     //Database logic here with callback containing our user object
-  }
-));
+    // Challenge #16 code modifications
+    myDataBase.findOneAndUpdate(
+  { id: profile.id },
+  {
+      $setOnInsert: {
+        id: profile.id,
+        name: profile.displayName || 'John Doe',
+        photo: profile.photos[0].value || '',
+        email: Array.isArray(profile.emails)
+          ? profile.emails[0].value
+          : 'No public email',
+        created_on: new Date(),
+        provider: profile.provider || ''
+      },
+      $set: {
+        last_login: new Date()
+      },
+      $inc: {
+        login_count: 1
+      }
+    },
+    { upsert: true, new: true },
+    (err, doc) => {
+      return cb(null, doc.value);
+    }
+  );
+    }
+  ));
 
 
 
