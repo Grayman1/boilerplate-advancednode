@@ -72,7 +72,10 @@ myDB(async client => {
       currentUsers,
       connected: true
     });
-   /* io.emit('user count', currentUsers); */
+    socket.on('chat message', (message) => {
+      io.emit('chat message', {name: socket.request.user.name, message: message}  )
+    })
+    
     
   
 // Challenge #19 -- Add code to disconnect user
