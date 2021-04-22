@@ -40,10 +40,20 @@ myDB(async client => {
 
   let currentUsers = 0;
   io.on('connection', socket => {
-  currentUsers += 1;
-  io.emit('user count', currentUsers);
-  console.log('A user has connected');
+    currentUsers += 1;
+    io.emit('user count', currentUsers);
+    console.log('A user has connected');
+
+// Challenge #19 -- Add code to disconnect user
+    socket.on('disconnect', () => {
+    currentUsers -= 1;
+    io.emit('user count', currentUsers);
+    console.log('A user has disconnected');
+  });
+  
 });
+
+  
 
 
 
