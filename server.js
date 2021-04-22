@@ -12,9 +12,9 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 // Add for Challenge #20
-passportSocketIo = require('passport.socketio');
-MongoStore = require('connect-mongo')(session);
-cookieParser = require('cookie-parser');
+const passportSocketIo = require('passport.socketio');
+const MongoStore = require('connect-mongo')(session);
+const cookieParser = require('cookie-parser');
 const  URI = process.env.MONGO_URI;
 const store = new MongoStore({url: URI});
 
@@ -24,6 +24,11 @@ const pug = require('pug');
 app.set('view engine', 'pug')
 
 const PORT = process.env.PORT || 3000;
+
+fccTesting(app); //For FCC testing purposes 
+app.use('/public', express.static(process.cwd() + '/public'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -74,10 +79,6 @@ myDB(async client => {
   });
 });
 
-fccTesting(app); //For FCC testing purposes 
-app.use('/public', express.static(process.cwd() + '/public'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 function onAuthorizeSuccess(data, accept) {
   console.log('successful connection to socket.io');
