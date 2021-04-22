@@ -58,19 +58,35 @@ myDB(async client => {
   auth(app, myDataBase);
 
   let currentUsers = 0;
+ /* io.emit('user', {
+    name: socket.request.user.name,
+    currentUsers,
+    connected: true
+    });
+*/
   io.on('connection', socket => {
     currentUsers += 1;
-    io.emit('user count', currentUsers);
     console.log('A user has connected');
-
+    io.emit('user', {
+      name: socket.request.user.name,
+      currentUsers,
+      connected: true
+    });
+   /* io.emit('user count', currentUsers); */
+    
+  
 // Challenge #19 -- Add code to disconnect user
     socket.on('disconnect', () => {
-    currentUsers -= 1;
-    io.emit('user count', currentUsers);
-    console.log('A user has disconnected');
+      currentUsers -= 1;
+      console.log('A user has disconnected');
+      io.emit('user', {
+        name: socket.request.user.name,
+        currentUsers,
+        connected: false
+      });
+ /*   io.emit('user count', currentUsers); */
+    });
   });
-  
-});
 
 }).catch(e => {
   console.log("Unsucessful DB connection");
