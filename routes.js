@@ -56,20 +56,21 @@ module.exports = function (app, myDataBase) {
     res.redirect('/');
     };
 
-    app.route('/register')
-  .post((req, res, next) => {
+
+   app.route('/register')
+    .post((req, res, next) => {
     // Challenge #12 - Hashing password
-    const hash = BCrypt.hashSync(req.body.password, 12);
-    myDataBase.findOne({ username: req.body.username }, function(err, user) {
-      if (err) {
+      const hash = BCrypt.hashSync(req.body.password, 12);
+      myDataBase.findOne({ username: req.body.username }, function(err, user) {
+        if (err) {
         next(err);
-      } else if (user) {
-        res.redirect('/');
-      } else {
-        myDataBase.insertOne({
-          username: req.body.username,
+        } else if (user) {
+          res.redirect('/');
+        } else {
+          myDataBase.insertOne({
+            username: req.body.username,
           // Challenge #12 change req.body password to use 'hash'
-          password: hash
+            password: hash
         },
           (err, doc) => {
             if (err) {
@@ -89,7 +90,6 @@ module.exports = function (app, myDataBase) {
       res.redirect('/profile');
     }
   );
-
 
   app.route('/logout')
   .get((req, res) => {

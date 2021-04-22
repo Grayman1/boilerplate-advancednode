@@ -33,12 +33,15 @@ const routes = require('./routes.js');
 const auth = require('./auth.js');
 
 myDB(async client => {
-  const myDataBase = await client.db('database').collection('users');
-  console.log("Sucessful DB Connection")
-  routes(app, myDataBase)
-  auth(app, myDataBase)
+  const myDataBase = await client.db('MyFourthFCCdb_4_0').collection('users');
+  console.log("Sucessful DB Connection");
+  routes(app, myDataBase);
+  auth(app, myDataBase);
 
+  let currentUsers = 0;
   io.on('connection', socket => {
+  currentUsers += 1;
+  io.emit('user count', currentUsers);
   console.log('A user has connected');
 });
 
@@ -57,6 +60,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // app.listen out here..
-app.listen(PORT, () => {
+http.listen(PORT, () => {
       console.log('Listening on port ' + PORT);
 });
